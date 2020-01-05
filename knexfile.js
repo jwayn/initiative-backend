@@ -19,7 +19,8 @@ module.exports = {
       host: process.env.HOST,
       user: process.env.DB_USER,
       password: process.env.DB_PASS,
-      database: process.env.DATABASE
+      database: process.env.DATABASE,
+      ssl: true,
     },
     searchPath: ['knex', 'public'],
   },
@@ -29,7 +30,8 @@ module.exports = {
       host: process.env.HOST,
       user: process.env.DB_USER,
       password: process.env.DB_PASS,
-      database: process.env.DATABASE
+      database: process.env.DATABASE,
+      ssl: true,
     },
     searchPath: ['knex', 'public'],
   }
