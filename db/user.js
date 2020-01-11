@@ -3,7 +3,7 @@ const moment = require('moment');
 
 module.exports = {
     getOneById: function(id) {
-        return knex('users').select('id', 'username', 'email', 'created', 'last_login').where({id}).first();
+        return knex('users').select('id', 'password', 'username', 'email', 'created', 'last_login').where({id}).first();
     },
     getOneByEmail: function(email) {
         return knex('users').where('email', email).first();

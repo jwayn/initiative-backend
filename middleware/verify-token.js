@@ -8,9 +8,8 @@ module.exports = (req, res, next) => {
             const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
             req.tokenData = decodedToken;
         } else {
-            res.status(401);
-            res.json({status: 401, message: 'Unauthorized'})
-            return;
+            console.log('Token is no good.');
+            res.sendStatus(401);
         }
     } catch (err) {
         console.log(err);

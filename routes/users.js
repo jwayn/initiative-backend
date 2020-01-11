@@ -139,7 +139,7 @@ router.post('/requestpassreset', async (req, res, next) => {
                 //Insert a pass reset record in DB
                 await User.createResetPassToken(user.id, token).catch(err => {next(err)});
                 // Email the user a link to the frontend 
-                const link = `${req.protocol}://${req.headers.host}/resetpassword?token=${token}`;
+                const link = `${req.protocol}://${req.headers.host}/forgotpass?token=${token}`;
                 sendEmail(
                     `${user.username} <${user.email}>`,
                     'Reset your RollInitiative password.',
@@ -157,21 +157,37 @@ router.post('/requestpassreset', async (req, res, next) => {
     }
 });
 
-router.post('/changepass', async (req, res, next) => {
-    if(req.query.token) {
+router.put('/updateforgotpass', async (req, res, next) => {
+    if(req.body.token) {
         //Check the database for that token
-        const resetRecord = await User.getResetPassToken(req.query.token);
+        const resetRecord = await User.getResetPassToken(req.body.token);
         if(resetRecord) {
-            if(req.body.password) {
-                const hash = await bcrypt.hash(req.body.password, 10).catch(err => {next(err)});
+            if(req.body.newPass) {
+                const hash = await bcrypt.hash(req.body.newPass, 10).catch(err => {next(err)});
                 await User.update(resetRecord.user_id, {password: hash}).catch(err => {next(err)});
-                await User.deleteResetPassToken(resetRecord.token);
+                await User.deleteResetPassToken(resetRecord.token).catch(err => {next(err)});
                 res.sendStatus(200);
             } else {
                 res.sendStatus(402);
             }
         } else {
             res.sendStatus(401);
+        }
+    }
+});
+
+router.put('/updatepassword', verifyToken, async (req, res, next) => {
+    if(req.tokenData) {
+        if(req.body.currentPass && req.body.newPass) {
+            const user = await User.getOneById(req.tokenData.user_id).catch(err => {next(err)});
+            if(user) {
+                const result = await bcrypt.compare(req.body.currentPass, user.password).catch(err => {next(err)});
+                if(result) {
+                    const hash = await bcrypt.hash(req.body.newPass, 10).catch(err => {next(err)});
+                    await User.update(user.id, {password: hash}).catch(err => {next(err)});
+                    res.sendStatus(200);
+                }
+            }
         }
     }
 });
