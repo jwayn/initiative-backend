@@ -176,20 +176,20 @@ router.post('/changepass', async (req, res, next) => {
     }
 });
 
-router.post('/resendverification', async (req, res, next) => {
+router.get('/resendverification', async (req, res, next) => {
     if(req.query.email) {
-        const user = User.getOneByEmail(req.query.email).catch(err => {next(err)});
+        const user = await User.getOneByEmail(req.query.email).catch(err => {next(err)});
         if(user) {
             const verificationRecord = await User.getVerificationByUserId(user.id).catch(err => {next(err)});
 
             if(verificationRecord) {
                 //Delete our existing verification record and create a new one.
                 await User.deleteVerificationRecord(verificationRecord.user_id).catch(err => {next(err)});
-                const verificationToken = await User.createVerification(newUser.id, generateToken(40)).catch(err => {next(err)});
+                const verificationToken = await User.createVerification(user.id, generateToken(40)).catch(err => {next(err)});
             
                 console.log(verificationToken);
                 await sendEmail(
-                    `${newUser.username} <${newUser.email}>`,
+                    `${user.username} <${user.email}>`,
                     'Please verify your RollInitiative account.',
                     `Please <a href="${req.protocol}://${req.headers.host}/verify?token=${verificationToken}">verify your RollInitiative account</a>.`,
                     `Please verify your RollInitiative account at ${req.protocol}://${req.headers.host}/verify?token=${verificationToken}`

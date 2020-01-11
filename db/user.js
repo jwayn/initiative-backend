@@ -33,6 +33,9 @@ module.exports = {
         console.log('Grabbing verification record for "' + token + '" .');
         return knex('users_verification').where({token}).first();
     },
+    getVerificationByUserId(user_id) {
+        return knex('users_verification').where({user_id}).first();
+    },
     deleteVerificationRecord(user_id) {
         console.log('Deleting verification record for user_id "' + user_id + '".');
         return knex('users_verification').where({user_id}).delete();
